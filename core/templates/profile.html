@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>个人资料</h2>
+<div class="card mt-3">
+    <div class="card-body">
+        <h5 class="card-title">基本信息</h5>
+        <p><strong>用户名：</strong>{{ user.username }}</p>
+        <p><strong>姓名：</strong>{{ user.get_full_name }}</p>
+        <p><strong>邮箱：</strong>{{ user.email }}</p>
+        {% if role == 'student' %}
+            <h5 class="card-title mt-3">学生信息</h5>
+            <p><strong>学号：</strong>{{ profile.student_id }}</p>
+            <p><strong>班级：</strong>{{ profile.class_name }}</p>
+            <p><strong>电话：</strong>{{ profile.phone }}</p>
+        {% elif role == 'teacher' %}
+            <h5 class="card-title mt-3">教师信息</h5>
+            <p><strong>工号：</strong>{{ profile.teacher_id }}</p>
+            <p><strong>院系：</strong>{{ profile.department }}</p>
+            <p><strong>职称：</strong>{{ profile.title }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
