@@ -1,55 +1,48 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Student, Teacher, AttendanceRecord
+from .models import Department, Member, AttendanceRecord
 
-
-class StudentInline(admin.StackedInline):
-    model = Student
+class MemberInline(admin.StackedInline):
+    model = Member
     can_delete = False
-    verbose_name_plural = '学生信息'
-
-
-class TeacherInline(admin.StackedInline):
-    model = Teacher
-    can_delete = False
-    verbose_name_plural = '教师信息'
-
+    verbose_name = '成员信息'
 
 class CustomUserAdmin(UserAdmin):
-    inlines = [StudentInline, TeacherInline]
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'get_role')
+    inlines = [MemberInline]
+    list_display = ('username', 'full_name', 'user_type', 'department', 'is_admin')
 
-    def get_role(self, obj):
-        if hasattr(obj, 'student_profile'):
-            return '学生'
-        elif hasattr(obj, 'teacher_profile'):
-            return '教师'
-        else:
-            return '管理员'
+    def full_name(self, obj):
+        return obj.get_full_name() or obj.username
+    full_name.short_description = '姓名'
 
-    get_role.short_description = '角色'
+    def user_type(self, obj):
+        return obj.member_profile.get_user_type_display() if hasattr(obj, 'member_profile') else '-'
+    user_type.short_description = '身份'
 
+    def department(self, obj):
+        return obj.member_profile.department.name if hasattr(obj, 'member_profile') and obj.member_profile.department else '-'
+    department.short_description = '部门'
+
+    def is_admin(self, obj):
+        return obj.member_profile.is_admin if hasattr(obj, 'member_profile') else False
+    is_admin.boolean = True
+    is_admin.short_description = '管理员'
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('name',)
 
-@admin.register(Student)
-class StudentAdmin(admin.ModelAdmin):
-    list_display = ('student_id', 'user', 'class_name', 'phone')
-    search_fields = ('student_id', 'user__username', 'user__first_name')
-    list_filter = ('class_name',)
-
-
-@admin.register(Teacher)
-class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('teacher_id', 'user', 'department', 'title')
-    search_fields = ('teacher_id', 'user__username')
-
+@admin.register(Member)
+class MemberAdmin(admin.ModelAdmin):
+    list_display = ('student_id', 'user', 'user_type', 'department', 'is_admin')
+    search_fields = ('student_id', 'user__username')
+    list_filter = ('user_type', 'department', 'is_admin')
 
 @admin.register(AttendanceRecord)
 class AttendanceRecordAdmin(admin.ModelAdmin):
     list_display = ('student', 'date', 'status')
-    list_filter = ('date', 'status')
-    date_hierarchy = 'date'
+    list_filter = ('date', 'status', 'student__department')

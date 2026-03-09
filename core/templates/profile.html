@@ -1,23 +1,24 @@
 {% extends 'base.html' %}
+{% block title %}个人资料{% endblock %}
 {% block content %}
-<h2>个人资料</h2>
-<div class="card mt-3">
+<div class="card">
     <div class="card-body">
-        <h5 class="card-title">基本信息</h5>
-        <p><strong>用户名：</strong>{{ user.username }}</p>
-        <p><strong>姓名：</strong>{{ user.get_full_name }}</p>
-        <p><strong>邮箱：</strong>{{ user.email }}</p>
-        {% if role == 'student' %}
-            <h5 class="card-title mt-3">学生信息</h5>
-            <p><strong>学号：</strong>{{ profile.student_id }}</p>
-            <p><strong>班级：</strong>{{ profile.class_name }}</p>
-            <p><strong>电话：</strong>{{ profile.phone }}</p>
-        {% elif role == 'teacher' %}
-            <h5 class="card-title mt-3">教师信息</h5>
-            <p><strong>工号：</strong>{{ profile.teacher_id }}</p>
-            <p><strong>院系：</strong>{{ profile.department }}</p>
-            <p><strong>职称：</strong>{{ profile.title }}</p>
-        {% endif %}
+        <h2 class="card-title">个人资料</h2>
+        <table class="table table-bordered">
+            <tr><th>用户名</th><td>{{ user.username }}</td></tr>
+            <tr><th>姓名</th><td>{{ user.get_full_name|default:"未设置" }}</td></tr>
+            <tr><th>邮箱</th><td>{{ user.email|default:"未填写" }}</td></tr>
+            {% if profile %}
+                <tr><th>学号/工号</th><td>{{ profile.student_id }}</td></tr>
+                <tr><th>身份</th><td>{{ profile.get_user_type_display }}</td></tr>
+                <tr><th>部门</th><td>{{ profile.department.name|default:"未选择" }}</td></tr>
+                <tr><th>电话</th><td>{{ profile.phone|default:"未填写" }}</td></tr>
+                <tr><th>管理员</th><td>{% if profile.is_admin %}是{% else %}否{% endif %}</td></tr>
+            {% else %}
+                <tr><td colspan="2" class="text-danger">未找到成员信息，请联系管理员</td></tr>
+            {% endif %}
+        </table>
+        <a href="{% url 'home' %}" class="btn btn-primary">返回首页</a>
     </div>
 </div>
 {% endblock %}

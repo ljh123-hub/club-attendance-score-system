@@ -1,48 +1,43 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Student, Teacher
+from .models import Member, Department
 
-class StudentRegistrationForm(UserCreationForm):
-    student_id = forms.CharField(max_length=20, label='学号')
-    class_name = forms.CharField(max_length=50, label='班级')
-    phone = forms.CharField(max_length=11, required=False, label='电话')
+class MemberRegistrationForm(UserCreationForm):
+    student_id = forms.CharField(label='学号/工号')
+    phone = forms.CharField(label='联系电话', required=False)
+    user_type = forms.ChoiceField(choices=Member.USER_TYPE_CHOICES, label='身份', required=True)
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        label='所属部门（没有可不选）',
+        required=False
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password1',
+            'password2'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            Student.objects.create(
+            Member.objects.create(
                 user=user,
                 student_id=self.cleaned_data['student_id'],
-                class_name=self.cleaned_data['class_name'],
-                phone=self.cleaned_data.get('phone', '')
-            )
-        return user
-
-class TeacherRegistrationForm(UserCreationForm):
-    teacher_id = forms.CharField(max_length=20, label='工号')
-    department = forms.CharField(max_length=50, label='院系')
-    title = forms.CharField(max_length=20, required=False, label='职称')
-
-    class Meta:
-        model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        if commit:
-            user.save()
-            Teacher.objects.create(
-                user=user,
-                teacher_id=self.cleaned_data['teacher_id'],
-                department=self.cleaned_data['department'],
-                title=self.cleaned_data.get('title', '')
+                user_type=self.cleaned_data['user_type'],
+                department=self.cleaned_data.get('department'),
+                phone=self.cleaned_data['phone']
             )
         return user
