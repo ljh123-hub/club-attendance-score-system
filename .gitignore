@@ -3,11 +3,14 @@ __pycache__/
 *.py[cod]
 *.so
 .Python
+*.pyc
+.env
 
 # Django
 *.log
 local_settings.py
-db.sqlite3
+*.sqlite3
+*.db
 media/
 
 # Virtualenv

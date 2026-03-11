@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>考勤打卡</title>
+</head>
+<body>
+    <h1>欢迎, {{ user.username }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="punch_type" value="in">签到</button>
+        <button type="submit" name="punch_type" value="out">签退</button>
+    </form>
+    <p><a href="{% url 'home' %}">返回主页</a></p>
+</body>
+</html>
