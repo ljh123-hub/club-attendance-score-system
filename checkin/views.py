@@ -32,7 +32,10 @@ def attendance_home(request):
             attendance = None
 
         status = {}
-        if not meeting.enable_checkin:
+        if is_teacher:
+            status['display'] = '-'
+            status['can_checkin'] = False
+        elif not meeting.enable_checkin:
             status['display'] = '此会议无需签到'
             status['can_checkin'] = False
         elif attendance and attendance.checkin_time:
