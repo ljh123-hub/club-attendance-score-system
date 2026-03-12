@@ -9,7 +9,7 @@
         {% if user.student_profile %}
             <a class="btn btn-primary btn-lg" href="{% url 'attendance_home' %}" role="button">查看我的考勤</a> <!-- B同学后续会添加链接 -->
         {% elif user.teacher_profile %}
-            <a class="btn btn-success btn-lg" href="{% url 'meeting_create' %}" role="button">教师签到面板</a> <!-- B同学后续会添加链接 -->
+            <a class="btn btn-success btn-lg" href="{% url 'attendance_home' %}" role="button">教师考勤面板</a> <!-- B同学后续会添加链接 -->
         {% else %}
             <a class="btn btn-info btn-lg" href="/admin" role="button">进入管理后台</a>
         {% endif %}

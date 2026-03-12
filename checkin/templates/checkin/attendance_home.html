@@ -2,22 +2,43 @@
 <html>
 <head>
     <title>考勤打卡</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 5px 10px; cursor: pointer; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .success { color: green; }
-        .absent { color: red; }
+        /* 基础样式 */
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; font-family: sans-serif; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #333; }
+        
+        /* 按钮样式 */
+        .btn { padding: 6px 14px; cursor: pointer; border: none; border-radius: 4px; font-size: 14px; transition: 0.3s; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-primary:hover { background-color: #0056b3; }
+        
+        /* 状态：不可用/已禁用 */
+        .btn:disabled { 
+            background-color: #e9ecef !important; 
+            color: #6c757d !important; 
+            cursor: not-allowed; 
+            border: 1px solid #dee2e6;
+        }
+
+        /* ✨ 状态颜色：关键样式 ✨ */
+        .status-success { color: #28a745; font-weight: bold; }
+        .status-absent { color: #dc3545; font-weight: bold; }
+        .status-waiting { color: #6c757d; }
     </style>
 </head>
 <body>
     <h1>考勤打卡</h1>
-    {% if is_teacher %}
-        <a href="{% url 'meeting_create' %}">发布新会议</a>
-    {% endif %}
+
+    {% csrf_token %}
+
+    <div style="margin-bottom: 20px;">
+        {% if is_teacher %}
+            <a href="{% url 'meeting_create' %}" class="btn btn-primary" style="text-decoration: none;">发布新会议</a>
+        {% endif %}
+        <a href="{% url 'home' %}" style="margin-left: 15px; color: #666;">返回主页</a>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -33,18 +54,29 @@
             <tr id="meeting-{{ item.meeting.id }}">
                 <td>{{ item.meeting.name }}</td>
                 <td>{{ item.meeting.location|default:"-" }}</td>
-                <td>{{ item.meeting.start_time|date:"Y-m-d H:i" }} ~ {{ item.meeting.end_time|date:"H:i" }}</td>
-                <td class="status-display">{{ item.status.display }}</td>
+                <td>{{ item.meeting.start_time|date:"Y-m-d H:i" }}</td>
+                
+                <td class="status-display 
+                    {% if '已签到' in item.status.display %}status-success
+                    {% elif '缺勤' in item.status.display %}status-absent
+                    {% endif %}">
+                    {{ item.status.display }}
+                </td>
+
                 <td>
                     {% if is_teacher %}
-                        <!-- 教师不显示签到按钮，只显示详情链接 -->
                         <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
                     {% else %}
-                        <!-- 学生显示签到按钮（根据状态） -->
                         {% if item.status.can_checkin %}
-                            <button class="btn checkin-btn" data-id="{{ item.meeting.id }}">签到</button>
+                            <button class="btn btn-primary checkin-btn" 
+                                    data-id="{{ item.meeting.id }}" 
+                                    data-url="{% url 'do_checkin' item.meeting.id %}">
+                                签到
+                            </button>
                         {% else %}
-                            <button class="btn" disabled>签到</button>
+                            <button class="btn" disabled>
+                                {% if '已签到' in item.status.display %}已签到{% else %}不可签到{% endif %}
+                            </button>
                         {% endif %}
                     {% endif %}
                 </td>
@@ -56,21 +88,49 @@
     </table>
 
     <script>
-        $('.checkin-btn').click(function() {
-            var btn = $(this);
-            var meetingId = btn.data('id');
-            $.post('{% url "do_checkin" 0 %}'.replace('0', meetingId), function(data) {
-                if (data.success) {
-                    // 更新状态显示
-                    var row = $('#meeting-' + meetingId);
-                    row.find('.status-display').text('已签到 (' + data.checkin_time + ')');
-                    btn.prop('disabled', true).text('已签到');
-                    alert('签到成功！');
-                } else {
-                    alert('签到失败：' + data.error);
-                }
-            }).fail(function() {
-                alert('网络错误，请稍后重试');
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            document.querySelectorAll('.checkin-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const btn = this;
+                    const url = btn.dataset.url;
+                    const meetingId = btn.dataset.id;
+
+                    btn.disabled = true;
+                    btn.innerText = '正在提交...';
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const row = document.getElementById(`meeting-${meetingId}`);
+                            const statusCell = row.querySelector('.status-display');
+                            
+                            // ✨ 优化点 3：更新文字的同时，动态加上绿色样式类
+                            statusCell.innerText = `已签到 (${data.checkin_time})`;
+                            statusCell.classList.add('status-success');
+                            
+                            // ✨ 优化点 4：不再移除按钮，而是将其设为“已签到”状态
+                            btn.innerText = '已签到';
+                            btn.disabled = true; 
+                        } else {
+                            alert('错误：' + data.error);
+                            btn.disabled = false;
+                            btn.innerText = '签到';
+                        }
+                    })
+                    .catch(error => {
+                        alert('网络错误');
+                        btn.disabled = false;
+                    });
+                });
             });
         });
     </script>
