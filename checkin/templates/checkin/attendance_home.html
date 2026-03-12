@@ -57,7 +57,11 @@
                     <td>{{ item.meeting.name }}</td>
                     <td>{{ item.meeting.location|default:"-" }}</td>
                     <td>
+                    {% if item.start_time|date:"Y-m-d" == item.end_time|date:"Y-m-d" %}
                         {{ item.start_time|date:"Y-m-d H:i" }} ~ {{ item.end_time|date:"H:i" }}
+                    {% else %}
+                        {{ item.start_time|date:"Y-m-d H:i" }} ~ {{ item.end_time|date:"Y-m-d H:i" }}
+                    {% endif %}
                     </td>
                     <td>
                         {% if item.description %}
