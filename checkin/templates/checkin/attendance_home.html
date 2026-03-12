@@ -1,30 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>考勤打卡</title>
     <style>
-        /* 基础样式 */
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; font-family: sans-serif; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; font-family: sans-serif; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
         th { background-color: #f8f9fa; color: #333; }
-        
-        /* 按钮样式 */
         .btn { padding: 6px 14px; cursor: pointer; border: none; border-radius: 4px; font-size: 14px; transition: 0.3s; }
         .btn-primary { background-color: #007bff; color: white; }
         .btn-primary:hover { background-color: #0056b3; }
-        
-        /* 状态：不可用/已禁用 */
-        .btn:disabled { 
-            background-color: #e9ecef !important; 
-            color: #6c757d !important; 
-            cursor: not-allowed; 
-            border: 1px solid #dee2e6;
-        }
-
-        /* ✨ 状态颜色：关键样式 ✨ */
+        .btn:disabled { background-color: #e9ecef !important; color: #6c757d !important; cursor: not-allowed; border: 1px solid #dee2e6; }
         .status-success { color: #28a745; font-weight: bold; }
         .status-absent { color: #dc3545; font-weight: bold; }
         .status-waiting { color: #6c757d; }
+        .description { color: #555; font-size: 13px; margin-top: 6px; }
+        .muted { color: #777; font-size: 13px; }
+        .section-title { margin-top: 20px; font-size: 18px; }
+        .truncate { max-height: 3.2em; overflow: hidden; }
+        .show-more { color: #007bff; cursor: pointer; font-size: 13px; margin-left: 6px; display: none; }
+        .pagination { margin-top: 12px; }
+        .pagination a { margin: 0 6px; text-decoration: none; color: #007bff; }
+        .pagination .current { font-weight: bold; margin: 0 6px; }
     </style>
 </head>
 <body>
@@ -32,107 +29,291 @@
 
     {% csrf_token %}
 
-    <div style="margin-bottom: 20px;">
+    <div style="margin-bottom: 12px;">
         {% if is_teacher %}
             <a href="{% url 'meeting_create' %}" class="btn btn-primary" style="text-decoration: none;">发布新会议</a>
         {% endif %}
         <a href="{% url 'home' %}" style="margin-left: 15px; color: #666;">返回主页</a>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>会议名称</th>
-                <th>地点</th>
-                <th>预计时间</th>
-                <th>签到状态</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in meeting_list %}
-            <tr id="meeting-{{ item.meeting.id }}">
-                <td>{{ item.meeting.name }}</td>
-                <td>{{ item.meeting.location|default:"-" }}</td>
-                <td>{{ item.meeting.start_time|date:"Y-m-d H:i" }}</td>
-                
-                <td class="status-display 
-                    {% if '已签到' in item.status.display %}status-success
-                    {% elif '缺勤' in item.status.display %}status-absent
-                    {% endif %}">
-                    {{ item.status.display }}
-                </td>
-
-                <td>
-                    {% if is_teacher %}
-                        <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
-                    {% else %}
-                        {% if item.status.can_checkin %}
-                            <button class="btn btn-primary checkin-btn" 
-                                    data-id="{{ item.meeting.id }}" 
-                                    data-url="{% url 'do_checkin' item.meeting.id %}">
-                                签到
-                            </button>
+    <!-- 本周会议（不分页） -->
+    <div class="section">
+        <div class="section-title">本周会议</div>
+        {% if this_week %}
+        <table>
+            <thead>
+                <tr>
+                    <th>会议名称</th>
+                    <th>地点</th>
+                    <th>预计时间</th>
+                    <th>简介</th>
+                    <th>签到状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in this_week %}
+                <tr id="meeting-{{ item.meeting.id }}">
+                    <td>{{ item.meeting.name }}</td>
+                    <td>{{ item.meeting.location|default:"-" }}</td>
+                    <td>
+                        {{ item.start_time|date:"Y-m-d H:i" }} ~ {{ item.end_time|date:"H:i" }}
+                    </td>
+                    <td>
+                        {% if item.description %}
+                            <div class="description truncate" data-mid="{{ item.meeting.id }}">{{ item.description|linebreaksbr }}</div>
+                            <span class="show-more" data-mid="{{ item.meeting.id }}">展开</span>
                         {% else %}
-                            <button class="btn" disabled>
-                                {% if '已签到' in item.status.display %}已签到{% else %}不可签到{% endif %}
-                            </button>
+                            <span class="muted">—</span>
                         {% endif %}
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5">暂无会议</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                    <td class="status-display 
+                        {% if '已签到' in item.status.display %}status-success
+                        {% elif '缺勤' in item.status.display %}status-absent
+                        {% endif %}">
+                        {{ item.status.display }}
+                    </td>
+                    <td>
+                        {% if is_teacher %}
+                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                        {% else %}
+                            {% if item.status.can_checkin %}
+                                <button class="btn btn-primary checkin-btn" 
+                                        data-id="{{ item.meeting.id }}" 
+                                        data-url="{% url 'do_checkin' item.meeting.id %}">
+                                    签到
+                                </button>
+                            {% else %}
+                                <button class="btn" disabled>
+                                    {% if '已签到' in item.status.display %}已签到{% else %}不可签到{% endif %}
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div class="muted">本周暂无会议</div>
+        {% endif %}
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    <!-- 非本周的未来会议 -->
+    <div class="section">
+        <div class="section-title">未来会议（本周以外）</div>
+        {% if future_after_week %}
+        <table>
+            <thead>
+                <tr>
+                    <th>会议名称</th>
+                    <th>地点</th>
+                    <th>预计时间</th>
+                    <th>简介</th>
+                    <th>签到状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in future_after_week %}
+                <tr id="meeting-{{ item.meeting.id }}">
+                    <td>{{ item.meeting.name }}</td>
+                    <td>{{ item.meeting.location|default:"-" }}</td>
+                    <td>
+                        {{ item.start_time|date:"Y-m-d H:i" }} ~ {{ item.end_time|date:"H:i" }}
+                    </td>
+                    <td>
+                        {% if item.description %}
+                            <div class="description truncate" data-mid="{{ item.meeting.id }}">{{ item.description|linebreaksbr }}</div>
+                            <span class="show-more" data-mid="{{ item.meeting.id }}">展开</span>
+                        {% else %}
+                            <span class="muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="status-display 
+                        {% if '已签到' in item.status.display %}status-success
+                        {% elif '缺勤' in item.status.display %}status-absent
+                        {% endif %}">
+                        {{ item.status.display }}
+                    </td>
+                    <td>
+                        {% if is_teacher %}
+                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                        {% else %}
+                            {% if item.status.can_checkin %}
+                                <button class="btn btn-primary checkin-btn" 
+                                        data-id="{{ item.meeting.id }}" 
+                                        data-url="{% url 'do_checkin' item.meeting.id %}">
+                                    签到
+                                </button>
+                            {% else %}
+                                <button class="btn" disabled>
+                                    {% if '已签到' in item.status.display %}已签到{% else %}不可签到{% endif %}
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div class="muted">暂无未来会议</div>
+        {% endif %}
+    </div>
 
-            document.querySelectorAll('.checkin-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const btn = this;
-                    const url = btn.dataset.url;
-                    const meetingId = btn.dataset.id;
+    <!-- 历史会议（分页） -->
+    <div class="section">
+        <div class="section-title">历史会议</div>
+        {% if past_page.object_list %}
+        <table>
+            <thead>
+                <tr>
+                    <th>会议名称</th>
+                    <th>地点</th>
+                    <th>预计时间</th>
+                    <th>简介</th>
+                    <th>签到状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in past_page.object_list %}
+                <tr id="meeting-{{ item.meeting.id }}">
+                    <td>{{ item.meeting.name }}</td>
+                    <td>{{ item.meeting.location|default:"-" }}</td>
+                    <td>
+                        {{ item.start_time|date:"Y-m-d H:i" }} ~ {{ item.end_time|date:"H:i" }}
+                    </td>
+                    <td>
+                        {% if item.description %}
+                            <div class="description truncate" data-mid="{{ item.meeting.id }}">{{ item.description|linebreaksbr }}</div>
+                            <span class="show-more" data-mid="{{ item.meeting.id }}">展开</span>
+                        {% else %}
+                            <span class="muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="status-display 
+                        {% if '已签到' in item.status.display %}status-success
+                        {% elif '缺勤' in item.status.display %}status-absent
+                        {% endif %}">
+                        {{ item.status.display }}
+                    </td>
+                    <td>
+                        {% if is_teacher %}
+                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                        {% else %}
+                            <button class="btn" disabled>已结束</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <div class="pagination">
+            {% if past_page.has_previous %}
+                <a href="?page={{ past_page.previous_page_number }}">« 上一页</a>
+            {% endif %}
+            <span class="current">第 {{ past_page.number }} / {{ past_page.paginator.num_pages }} 页</span>
+            {% if past_page.has_next %}
+                <a href="?page={{ past_page.next_page_number }}">下一页 »</a>
+            {% endif %}
+        </div>
+
+        {% else %}
+            <div class="muted">暂无历史会议</div>
+        {% endif %}
+    </div>
+
+    <!-- 3) JS：页面加载时判断是否被截断并显示/隐藏按钮；保留展开/收起逻辑 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // CSRF 与签到逻辑（保持你已有的代码）...
+    const csrftokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    const csrftoken = csrftokenInput ? csrftokenInput.value : '';
+
+    // --------- 新增：根据元素高度判断是否显示“展开” ----------
+    // 选择所有简介元素
+    document.querySelectorAll('.description').forEach(desc => {
+        // 强制浏览器渲染样式以确保 clientHeight/scrollHeight 是正确的
+        // 如果内容高度大于容器高度，说明被截断，显示按钮
+        // 我们允许一个 1px 的容差以避免微小差异
+        if (desc.scrollHeight > desc.clientHeight + 1) {
+            const mid = desc.dataset.mid;
+            const btn = document.querySelector('.show-more[data-mid="'+mid+'"]');
+            if (btn) {
+                btn.style.display = 'inline'; // 显示按钮
+            }
+        } else {
+            // 内容未超出，确保按钮隐藏（已默认隐藏，这里保险）
+            const mid = desc.dataset.mid;
+            const btn = document.querySelector('.show-more[data-mid="'+mid+'"]');
+            if (btn) btn.style.display = 'none';
+        }
+    });
+
+    // 展开/收起切换（与之前逻辑一致）
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.show-more')) {
+            const mid = e.target.dataset.mid;
+            const desc = document.querySelector('.description[data-mid="'+mid+'"]');
+            if (!desc) return;
+            if (desc.classList.contains('truncate')) {
+                desc.classList.remove('truncate');
+                e.target.innerText = '收起';
+            } else {
+                desc.classList.add('truncate');
+                e.target.innerText = '展开';
+                // 如果收起后内容确实不超出，可以隐藏按钮（可选）
+                // if (desc.scrollHeight <= desc.clientHeight + 1) { e.target.style.display = 'none'; }
+            }
+        }
+    });
+
+    // --------- 签到按钮逻辑（保持你已有的 fetch 请求处理） ----------
+    document.querySelectorAll('.checkin-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const btn = this;
+            const url = btn.dataset.url;
+            const meetingId = btn.dataset.id;
+
+            btn.disabled = true;
+            btn.innerText = '正在提交...';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.getElementById(`meeting-${meetingId}`);
+                    const statusCell = row.querySelector('.status-display');
+
+                    statusCell.innerText = `已签到 (${data.checkin_time})`;
+                    statusCell.classList.add('status-success');
+
+                    btn.innerText = '已签到';
                     btn.disabled = true;
-                    btn.innerText = '正在提交...';
-
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': csrftoken,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const row = document.getElementById(`meeting-${meetingId}`);
-                            const statusCell = row.querySelector('.status-display');
-                            
-                            // ✨ 优化点 3：更新文字的同时，动态加上绿色样式类
-                            statusCell.innerText = `已签到 (${data.checkin_time})`;
-                            statusCell.classList.add('status-success');
-                            
-                            // ✨ 优化点 4：不再移除按钮，而是将其设为“已签到”状态
-                            btn.innerText = '已签到';
-                            btn.disabled = true; 
-                        } else {
-                            alert('错误：' + data.error);
-                            btn.disabled = false;
-                            btn.innerText = '签到';
-                        }
-                    })
-                    .catch(error => {
-                        alert('网络错误');
-                        btn.disabled = false;
-                    });
-                });
+                } else {
+                    alert('错误：' + (data.error || '未知错误'));
+                    btn.disabled = false;
+                    btn.innerText = '签到';
+                }
+            })
+            .catch(error => {
+                alert('网络错误');
+                btn.disabled = false;
+                btn.innerText = '签到';
             });
         });
-    </script>
+    });
+
+});
+</script>
 </body>
 </html>
