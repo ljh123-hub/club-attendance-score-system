@@ -1,30 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>考勤打卡</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; margin-top: 10px; font-family: sans-serif; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
-        th { background-color: #f8f9fa; color: #333; }
-        .btn { padding: 6px 14px; cursor: pointer; border: none; border-radius: 4px; font-size: 14px; transition: 0.3s; }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn:disabled { background-color: #e9ecef !important; color: #6c757d !important; cursor: not-allowed; border: 1px solid #dee2e6; }
-        .status-success { color: #28a745; font-weight: bold; }
-        .status-absent { color: #dc3545; font-weight: bold; }
-        .status-waiting { color: #6c757d; }
-        .description { color: #555; font-size: 13px; margin-top: 6px; }
-        .muted { color: #777; font-size: 13px; }
-        .section-title { margin-top: 20px; font-size: 18px; }
-        .truncate { max-height: 3.2em; overflow: hidden; }
-        .show-more { color: #007bff; cursor: pointer; font-size: 13px; margin-left: 6px; display: none; }
-        .pagination { margin-top: 12px; }
-        .pagination a { margin: 0 6px; text-decoration: none; color: #007bff; }
-        .pagination .current { font-weight: bold; margin: 0 6px; }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}考勤 - 爱特社团{% endblock %}
+{% block content %}
     <h1>考勤打卡</h1>
 
     {% csrf_token %}
@@ -319,5 +295,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
-</body>
-</html>
+{% endblock %}

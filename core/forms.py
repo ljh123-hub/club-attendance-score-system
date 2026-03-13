@@ -12,12 +12,12 @@ class MemberRegistrationForm(UserCreationForm):
     )
     student_id = forms.CharField(
         label='学号/工号',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如：2024001'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如：25010010001'})
     )
     phone = forms.CharField(
         label='联系电话',
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '可选'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '选填'})
     )
     user_type = forms.ChoiceField(
         choices=Member.USER_TYPE_CHOICES,
