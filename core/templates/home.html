@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+<<<<<<< HEAD
 {% block title %}首页{% endblock %}
 {% block content %}
 <div class="jumbotron">
@@ -12,6 +13,22 @@
         <p>请先登录或注册。</p>
         <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">登录</a>
         <a class="btn btn-secondary btn-lg" href="{% url 'register' %}" role="button">注册</a>
+=======
+{% block title %}首页 - 爱特社团{% endblock %}
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">爱特社团考勤系统</h1>
+    <p class="lead">智能考勤 · 自动计分 · 轻松管理</p>
+    <hr class="my-4" style="background: rgba(255,255,255,0.3);">
+    {% if user.is_authenticated %}
+        <p>欢迎回来，<strong>{{ user.get_full_name|default:user.username }}</strong>！</p>
+        <p>您可以通过导航栏访问个人资料或查看考勤记录。</p>
+        <a class="btn btn-glow btn-lg" href="{% url 'profile' %}" role="button">查看个人资料</a>
+    {% else %}
+        <p>请登录或注册，开始使用考勤系统。</p>
+        <a class="btn btn-glow btn-lg me-2" href="{% url 'login' %}" role="button">登录</a>
+        <a class="btn btn-outline-light btn-lg" href="{% url 'register' %}" role="button">注册</a>
+>>>>>>> 03f2d59 (feat: 优化界面风格，实现多部门选择及Tom Select交互)
     {% endif %}
 </div>
 {% endblock %}

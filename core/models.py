@@ -20,12 +20,19 @@ class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='member_profile')
     user_type = models.CharField('身份类型', max_length=20, choices=USER_TYPE_CHOICES, default='student')
     student_id = models.CharField('学号/工号', max_length=20, unique=True)
+<<<<<<< HEAD
     department = models.ForeignKey(
         Department,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         verbose_name='所属部门（可选）'
+=======
+    departments = models.ManyToManyField(
+        Department,
+        blank=True,
+        verbose_name='所属部门（可多选）'
+>>>>>>> 03f2d59 (feat: 优化界面风格，实现多部门选择及Tom Select交互)
     )
     phone = models.CharField('电话', max_length=11, blank=True)
     is_admin = models.BooleanField('是否管理员', default=False)
@@ -33,6 +40,13 @@ class Member(models.Model):
     def __str__(self):
         return f"{self.student_id} - {self.user.get_full_name() or self.user.username}"
 
+<<<<<<< HEAD
+=======
+    class Meta:
+        verbose_name = '成员'
+        verbose_name_plural = '成员'
+
+>>>>>>> 03f2d59 (feat: 优化界面风格，实现多部门选择及Tom Select交互)
 class AttendanceRecord(models.Model):
     STATUS_CHOICES = (
         ('present', '正常出勤'),
@@ -48,6 +62,10 @@ class AttendanceRecord(models.Model):
     class Meta:
         unique_together = ('student', 'date')
         verbose_name = '考勤记录'
+<<<<<<< HEAD
+=======
+        verbose_name_plural = '考勤记录'
+>>>>>>> 03f2d59 (feat: 优化界面风格，实现多部门选择及Tom Select交互)
 
     def __str__(self):
         return f"{self.student.student_id} | {self.date} | {self.get_status_display()}"

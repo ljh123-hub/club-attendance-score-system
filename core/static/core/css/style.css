@@ -1,0 +1,160 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    color: #333;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.gradient-text {
+    background: linear-gradient(45deg, #f3ec78, #af4261);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
+
+.form-control, .form-select {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+.form-control:focus, .form-select:focus {
+    background: rgba(255,255,255,0.3);
+    border-color: #af4261;
+    box-shadow: 0 0 15px rgba(175,66,97,0.5);
+    color: #fff;
+}
+.form-control::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+.form-label {
+    color: #fff;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+select[multiple] {
+    height: auto;
+    min-height: 120px;
+}
+select[multiple] option {
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+select[multiple] option:hover {
+    background: rgba(175,66,97,0.5);
+}
+
+.btn-glow {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 25px;
+    padding: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+}
+.btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px 0 rgba(102, 126, 234, 0.6);
+}
+
+.link-gradient {
+    background: linear-gradient(45deg, #f3ec78, #af4261);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+    text-decoration: none;
+}
+.link-gradient:hover {
+    text-decoration: underline;
+}
+
+.jumbotron {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    color: white;
+}
+.jumbotron h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.table {
+    color: white;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.table th, .table td {
+    border-color: rgba(255,255,255,0.2);
+}
+
+
+/* Tom Select 组件样式覆盖 - 科技感毛玻璃效果 */
+.ts-control {
+    background: rgba(255,255,255,0.2) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    backdrop-filter: blur(5px);
+}
+.ts-dropdown {
+    background: rgba(30,30,50,0.9) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+.ts-dropdown .option {
+    color: #fff !important;
+    padding: 10px 12px;
+}
+.ts-dropdown .active {
+    background: rgba(175,66,97,0.5) !important;
+}
+.ts-wrapper.multi .ts-control .item {
+    background: rgba(102,126,234,0.6) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: #fff !important;
+    border-radius: 20px !important;
+    padding: 3px 10px !important;
+    margin: 2px !important;
+}
+.ts-wrapper.multi .ts-control .item .remove {
+    color: #fff !important;
+    opacity: 0.8;
+}
+.ts-wrapper.multi .ts-control .item .remove:hover {
+    opacity: 1;
+    background: transparent !important;
+}
