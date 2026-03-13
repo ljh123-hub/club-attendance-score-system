@@ -12,11 +12,13 @@ from datetime import timedelta
 
 from .models import Meeting, Attendance
 from .forms import MeetingForm
-from core.models import Student, Teacher
+from core.models import Member
 from django.views.decorators.http import require_POST
 
 def is_teacher(user):
-    return hasattr(user, 'teacher_profile')
+    if hasattr(user, 'member_profile'):
+        return user.member_profile.user_type == 'teacher'
+    return False
 
 
 @login_required
@@ -191,10 +193,14 @@ def meeting_detail(request, meeting_id):
         raise PermissionDenied
     meeting = get_object_or_404(Meeting, pk=meeting_id)
     
-    # 优化：使用 select_related 一次性连表查出用户资料，避免在循环中产生 N+1 查询
-    participants = meeting.participants.select_related('student_profile', 'teacher_profile').all()
+    # 注意：participants 可能仍然是 User 的多对多，但我们需要通过 User 获取 Member
+    participants = meeting.participants.all()
     
-    # 优化：一次性查出该会议的所有签到记录
+    # 一次性获取所有相关 Member 信息，避免 N+1 查询
+    members = Member.objects.filter(user__in=participants).select_related('user').prefetch_related('departments')
+    member_dict = {member.user_id: member for member in members}
+    
+    # 签到记录
     attendance_dict = {
         att.user_id: att.checkin_time 
         for att in Attendance.objects.filter(meeting=meeting)
@@ -203,18 +209,20 @@ def meeting_detail(request, meeting_id):
     grouped = defaultdict(list)
 
     for user in participants:
-        group_name = '未分组'
-        if hasattr(user, 'student_profile'):
-            group_name = user.student_profile.class_name
-        elif hasattr(user, 'teacher_profile'):
-            group_name = user.teacher_profile.department
+        member = member_dict.get(user.id)
+        if not member:
+            # 如果用户没有关联的 Member（理论上不应该），跳过或作为未分组
+            group_name = '未关联成员'
+        else:
+            # 取第一个部门名称作为分组（如果无部门则显示“未分组”）
+            first_dept = member.departments.first()
+            group_name = first_dept.name if first_dept else '未分组'
 
-        # 优化：直接从内存中读取签到时间
         checkin_time = attendance_dict.get(user.id)
-
         grouped[group_name].append({
             'user': user,
             'checkin_time': checkin_time,
+            'member': member,  # 如果需要显示更多信息
         })
 
     grouped_list = [{'department': dept, 'users': users} for dept, users in grouped.items()]

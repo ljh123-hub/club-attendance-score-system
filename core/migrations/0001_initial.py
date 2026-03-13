@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Student",
+            name="Department",
             fields=[
                 (
                     "id",
@@ -27,54 +27,73 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "student_id",
-                    models.CharField(max_length=20, unique=True, verbose_name="学号"),
+                    "name",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="部门名称"
+                    ),
                 ),
-                ("class_name", models.CharField(max_length=50, verbose_name="班级")),
+            ],
+            options={
+                "verbose_name": "部门",
+                "verbose_name_plural": "部门",
+            },
+        ),
+        migrations.CreateModel(
+            name="Member",
+            fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "user_type",
+                    models.CharField(
+                        choices=[("student", "学生/成员"), ("teacher", "老师/导员")],
+                        default="student",
+                        max_length=20,
+                        verbose_name="身份类型",
+                    ),
+                ),
+                (
+                    "student_id",
+                    models.CharField(
+                        max_length=20, unique=True, verbose_name="学号/工号"
+                    ),
+                ),
                 (
                     "phone",
                     models.CharField(blank=True, max_length=11, verbose_name="电话"),
                 ),
                 (
-                    "user",
-                    models.OneToOneField(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="student_profile",
-                        to=settings.AUTH_USER_MODEL,
+                    "is_admin",
+                    models.BooleanField(default=False, verbose_name="是否管理员"),
+                ),
+                (
+                    "departments",
+                    models.ManyToManyField(
+                        blank=True,
+                        to="core.department",
+                        verbose_name="所属部门（可多选）",
                     ),
-                ),
-            ],
-        ),
-        migrations.CreateModel(
-            name="Teacher",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "teacher_id",
-                    models.CharField(max_length=20, unique=True, verbose_name="工号"),
-                ),
-                ("department", models.CharField(max_length=50, verbose_name="院系")),
-                (
-                    "title",
-                    models.CharField(blank=True, max_length=20, verbose_name="职称"),
                 ),
                 (
                     "user",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="teacher_profile",
+                        related_name="member_profile",
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
+            options={
+                "verbose_name": "成员",
+                "verbose_name_plural": "成员",
+            },
         ),
         migrations.CreateModel(
             name="AttendanceRecord",
@@ -93,14 +112,14 @@ class Migration(migrations.Migration):
                     "status",
                     models.CharField(
                         choices=[
-                            ("present", "正常"),
+                            ("present", "正常出勤"),
                             ("late", "迟到"),
-                            ("absent", "旷课"),
+                            ("absent", "缺席"),
                             ("leave", "请假"),
                         ],
                         default="present",
                         max_length=10,
-                        verbose_name="考勤状态",
+                        verbose_name="状态",
                     ),
                 ),
                 (
@@ -111,12 +130,14 @@ class Migration(migrations.Migration):
                     "student",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="core.student",
-                        verbose_name="学生",
+                        to="core.member",
+                        verbose_name="成员",
                     ),
                 ),
             ],
             options={
+                "verbose_name": "考勤记录",
+                "verbose_name_plural": "考勤记录",
                 "unique_together": {("student", "date")},
             },
         ),

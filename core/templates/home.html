@@ -1,22 +1,19 @@
 {% extends 'base.html' %}
+{% block title %}首页 - 爱特社团{% endblock %}
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-4">欢迎使用社团考勤系统</h1>
-    <p class="lead">这是一个简单的考勤及分数计算系统。</p>
-    <hr class="my-4">
+<div class="jumbotron text-center">
+    <h1 class="display-4">爱特社团考勤系统</h1>
+    <p class="lead">智能考勤 · 自动计分 · 轻松管理</p>
+    <hr class="my-4" style="background: rgba(255,255,255,0.3);">
     {% if user.is_authenticated %}
-        <p>你好，{{ user.get_full_name|default:user.username }}！</p>
-        {% if user.student_profile %}
-            <a class="btn btn-primary btn-lg" href="{% url 'attendance_home' %}" role="button">查看我的考勤</a> <!-- B同学后续会添加链接 -->
-        {% elif user.teacher_profile %}
-            <a class="btn btn-success btn-lg" href="{% url 'attendance_home' %}" role="button">教师考勤面板</a> <!-- B同学后续会添加链接 -->
-        {% else %}
-            <a class="btn btn-info btn-lg" href="/admin" role="button">进入管理后台</a>
-        {% endif %}
+        <p>欢迎回来，<strong>{{ user.get_full_name|default:user.username }}</strong>！</p>
+        <p>您可以通过导航栏访问个人资料或查看考勤记录。</p>
+        <a class="btn btn-glow btn-lg" href="{% url 'profile' %}" role="button">个人资料</a>
+        <a class="btn btn-glow btn-lg" href="{% url 'attendance_home' %}" role="button">考勤主页</a>
     {% else %}
-        <p>请先登录或注册。</p>
-        <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">登录</a>
-        <a class="btn btn-secondary btn-lg" href="{% url 'register_choice' %}" role="button">注册</a>
+        <p>请登录或注册，开始使用考勤系统。</p>
+        <a class="btn btn-glow btn-lg me-2" href="{% url 'login' %}" role="button">登录</a>
+        <a class="btn btn-outline-light btn-lg" href="{% url 'register' %}" role="button">注册</a>
     {% endif %}
 </div>
 {% endblock %}
