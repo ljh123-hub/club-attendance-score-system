@@ -118,7 +118,7 @@
                     </td>
                     <td>
                         {% if is_teacher %}
-                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                            <a href="{% url 'meeting_detail' item.meeting.id %}" class="btn">考勤详情</a>
                         {% else %}
                             {% if item.status.can_checkin %}
                                 <button class="btn btn-primary checkin-btn" 
@@ -180,7 +180,7 @@
                     </td>
                     <td>
                         {% if is_teacher %}
-                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                            <a href="{% url 'meeting_detail' item.meeting.id %}" class="btn">考勤详情</a>
                         {% else %}
                             <button class="btn" disabled>已结束</button>
                         {% endif %}

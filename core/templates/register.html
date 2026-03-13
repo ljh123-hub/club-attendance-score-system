@@ -1,59 +1,64 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}注册 - 爱特社团{% endblock %}
+
 {% block extra_head %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
 {% endblock %}
+
 {% block content %}
 <div class="main-container">
     <h2 class="display-text">注册</h2>
     <p class="lead-text">填写信息，开启考勤管理</p>
-    <div class="card-body">
-        <form method="post" id="registerForm" class="card-body">
-            {% csrf_token %}
+    
+    <form method="post" id="registerForm" class="card-body" style="width:100%; max-width:800px;">
+        {% csrf_token %}
 
-            <div class="mb-3">
+        <!-- 第一行：用户名 + 姓名 + 学号/工号 -->
+        <div class="form-row">
+            <div class="col-4">
                 <label for="{{ form.username.id_for_label }}" class="form-label">用户名：</label>
                 {{ form.username }}
-                {% if form.username.errors %}
-                    <div class="text-danger small">{{ form.username.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
+                </div>
+            <div class="col-4">
                 <label for="{{ form.full_name.id_for_label }}" class="form-label">姓名：</label>
                 {{ form.full_name }}
-                {% if form.full_name.errors %}
-                    <div class="text-danger small">{{ form.full_name.errors }}</div>
-                {% endif %}
             </div>
-
-            <div class="mb-3">
+            <div class="col-4">
                 <label for="{{ form.student_id.id_for_label }}" class="form-label">学号/工号：</label>
                 {{ form.student_id }}
-                {% if form.student_id.errors %}
-                    <div class="text-danger small">{{ form.student_id.errors }}</div>
-                {% endif %}
             </div>
+        </div>
 
-            <div class="mb-3">
+        <!-- 第二行：邮箱 + 联系电话 -->
+        <div class="form-row">
+            <div class="col-6">
                 <label for="{{ form.email.id_for_label }}" class="form-label">邮箱：</label>
                 {{ form.email }}
                 {% if form.email.errors %}
-                    <div class="text-danger small">{{ form.email.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.email.errors }}</div>
                 {% endif %}
             </div>
+            <div class="col-6">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">联系电话：</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
 
-            <div class="mb-3">
+        <!-- 第三行：身份 + 所属部门 -->
+        <div class="form-row">
+            <div class="col-4">
                 <label for="{{ form.user_type.id_for_label }}" class="form-label">身份：</label>
                 {{ form.user_type }}
                 {% if form.user_type.errors %}
-                    <div class="text-danger small">{{ form.user_type.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.user_type.errors }}</div>
                 {% endif %}
             </div>
-
-            <!-- 部门多选字段 - 手动渲染以应用 Tom Select -->
-            <div class="mb-3">
+            <div class="col-8">
                 <label for="{{ form.departments.id_for_label }}" class="form-label">所属部门（可多选）：</label>
                 <select name="{{ form.departments.name }}" id="{{ form.departments.id_for_label }}" 
                         class="form-control tom-select" multiple size="1">
@@ -62,47 +67,49 @@
                     {% endfor %}
                 </select>
                 {% if form.departments.errors %}
-                    <div class="text-danger small">{{ form.departments.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.departments.errors }}</div>
                 {% endif %}
             </div>
+        </div>
 
-            <div class="mb-3">
-                <label for="{{ form.phone.id_for_label }}" class="form-label">联系电话：</label>
-                {{ form.phone }}
-                {% if form.phone.errors %}
-                    <div class="text-danger small">{{ form.phone.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
+        <!-- 第四行：密码 -->
+        <div class="form-row">
+            <div class="col-12">
                 <label for="{{ form.password1.id_for_label }}" class="form-label">密码：</label>
                 {{ form.password1 }}
+                <small class="form-text text-muted d-block mt-1">{{ form.password1.help_text }}</small>
                 {% if form.password1.errors %}
-                    <div class="text-danger small">{{ form.password1.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.password1.errors }}</div>
                 {% endif %}
-                <small class="form-text text-muted">{{ form.password1.help_text }}</small>
             </div>
+        </div>
 
-            <div class="mb-3">
+        <!-- 第五行：确认密码 -->
+        <div class="form-row">
+            <div class="col-12">
                 <label for="{{ form.password2.id_for_label }}" class="form-label">确认密码：</label>
                 {{ form.password2 }}
                 {% if form.password2.errors %}
-                    <div class="text-danger small">{{ form.password2.errors }}</div>
+                    <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
                 {% endif %}
             </div>
+        </div>
 
-            <button type="submit" class="btn btn-glow w-100">立即注册</button>
-        </form>
-        <p class="mt-3 text-center">已有账号？<a href="{% url 'login' %}" class="link-gradient">去登录</a></p>
-    </div>
+        <!-- 按钮区域 -->
+        <div class="d-flex justify-content-center mt-4">
+            <button type="submit" class="btn btn-glow" style="font-size:1rem;">立即注册</button>
+        </div>
+    </form>
+
+    <p class="mt-3 text-center">已有账号？<a href="{% url 'login' %}" class="link-gradient">去登录</a></p>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+    {{ block.super }}
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化 Tom Select
             new TomSelect('.tom-select', {
                 plugins: ['remove_button'],
                 create: false,
