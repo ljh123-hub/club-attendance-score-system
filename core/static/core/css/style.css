@@ -126,7 +126,7 @@ body::-webkit-scrollbar {
 .btn {
     font-style: normal;
     text-decoration: none;
-    color: black;
+    color: white;
     margin: 0 10px 0 10px;
     padding: 5px 8px 5px 8px;
     background-color: #48ACF0;
@@ -149,7 +149,6 @@ body::-webkit-scrollbar {
     text-underline-offset: 3px;
 }
 
-/* 表格基础样式 */
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -174,9 +173,10 @@ body::-webkit-scrollbar {
     background-color: #f8f9fa;
 }
 
-.table {
-    color: #212529;
+.blank {
+    margin-top: 10px;
 }
+
 .btn-primary { background-color: #007bff; color: white; }
 .btn-primary:hover { background-color: #0056b3; }
 .btn:disabled { background-color: #e9ecef !important; color: #6c757d !important; cursor: not-allowed; border: 1px solid #dee2e6; }
@@ -185,7 +185,7 @@ body::-webkit-scrollbar {
 .status-waiting { color: #6c757d; }
 .description { color: #555; font-size: 13px; margin-top: 6px; }
 .muted { color: #777; font-size: 13px; }
-.section-title { margin-top: 20px; font-size: 18px; }
+.section-title { margin: 20px 0 10px 1px; font-size: 18px; }
 .truncate { max-height: 3.2em; overflow: hidden; }
 .show-more { color: #007bff; cursor: pointer; font-size: 13px; margin-left: 6px; display: none; }
 .pagination { margin-top: 12px; }

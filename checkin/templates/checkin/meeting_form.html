@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>发布会议</title>
-</head>
-<body>
-    <h1>发布新会议</h1>
-    <form method="post">
+{% extends 'base.html' %}
+{% block title %}考勤 - 爱特社团{% endblock %}
+{% block content %}
+<div class="main-container">
+    <h2 class="lead-text">发布新会议</h2>
+    <form method="post" class="card-body">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">发布</button>
+        <button type="submit" class="btn btn-primary">发布</button>
     </form>
-    <a href="{% url 'attendance_home' %}">返回</a>
-</body>
-</html>
+    <div class="blank"></div>
+    <div class="blank"></div>
+    <a href="{% url 'attendance_home' %}" class="btn">返回考勤面板</a>
+</div>
+{% endblock %}
