@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}个人资料 - 爱特社团{% endblock %}
+{% block content %}
+<div class="card glass-card">
+    <div class="card-body">
+        <h2 class="card-title gradient-text">个人资料</h2>
+        <table class="table table-bordered">
+            <tr><th>用户名</th><td>{{ user.username }}</td></tr>
+            <tr><th>姓名</th><td>{{ user.get_full_name|default:"未设置" }}</td></tr>
+            <tr><th>邮箱</th><td>{{ user.email|default:"未填写" }}</td></tr>
+            {% if profile %}
+                <tr><th>学号/工号</th><td>{{ profile.student_id }}</td></tr>
+                <tr><th>身份</th><td>{{ profile.get_user_type_display }}</td></tr>
+                <tr><th>所属部门</th>
+                    <td>
+                        {% if profile.departments.exists %}
+                            {% for dept in profile.departments.all %}
+                                <span class="badge bg-info me-1">{{ dept.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            未选择
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr><th>电话</th><td>{{ profile.phone|default:"未填写" }}</td></tr>
+                <tr><th>管理员</th><td>{% if profile.is_admin %}是{% else %}否{% endif %}</td></tr>
+            {% else %}
+                <tr><td colspan="2" class="text-danger">未找到成员信息，请联系管理员</td></tr>
+            {% endif %}
+        </table>
+        <a href="{% url 'home' %}" class="btn btn-glow">返回首页</a>
+    </div>
+</div>
+{% endblock %}
