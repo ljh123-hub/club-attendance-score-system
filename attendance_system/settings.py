@@ -124,5 +124,7 @@ STATIC_URL = "static/"
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
+
 # 教师/站长注册密钥（请妥善保管，定期更换）
 TEACHER_REGISTRATION_SECRET = 'teacher2026'   # 可改为从环境变量读取，如 config('TEACHER_SECRET')
+

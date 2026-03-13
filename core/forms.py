@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+
 from django.conf import settings          # 新增导入
+
 from .models import Member, Department
 
 class MemberRegistrationForm(UserCreationForm):
@@ -12,13 +14,17 @@ class MemberRegistrationForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '请输入真实姓名'})
     )
     student_id = forms.CharField(
+
         label='学号',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如：2024001'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例如：25010022022'})
+
     )
     phone = forms.CharField(
         label='联系电话',
         required=False,
+
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '可选'})
+
     )
     user_type = forms.ChoiceField(
         choices=Member.USER_TYPE_CHOICES,
@@ -33,6 +39,7 @@ class MemberRegistrationForm(UserCreationForm):
         widget=forms.SelectMultiple(attrs={'class': 'form-control', 'size': '8'})
     )
 
+
     # 新增：管理员注册码字段（仅当身份为教师时需验证）
     teacher_secret = forms.CharField(
         label='管理员注册码',
@@ -43,6 +50,7 @@ class MemberRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['email', 'password1', 'password2']   # 移除了 'username'
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,10 +64,13 @@ class MemberRegistrationForm(UserCreationForm):
 
         self.fields['departments'].queryset = Department.objects.all()
 
+
         # 统一添加 form-control 类
+
         for field_name, field in self.fields.items():
             if not isinstance(field.widget, (forms.CheckboxInput, forms.SelectMultiple)):
                 field.widget.attrs.setdefault('class', 'form-control')
+
 
     def clean_student_id(self):
         """检查学号是否已被使用（包括作为用户名或已存在于 Member）"""
@@ -89,6 +100,7 @@ class MemberRegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.username = self.cleaned_data['student_id']   # 学号作为用户名
+
         user.first_name = self.cleaned_data['full_name']
         user.last_name = ''
         if commit:

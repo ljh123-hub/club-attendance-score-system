@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+
 from django.urls import path
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Department, Member, AttendanceRecord
 import csv
 import io
+
 
 class MemberInline(admin.StackedInline):
     model = Member
@@ -48,11 +50,14 @@ class MemberAdmin(admin.ModelAdmin):
     list_display = ('student_id', 'user', 'user_type', 'department_list', 'is_admin')
     search_fields = ('student_id', 'user__username')
     list_filter = ('user_type', 'departments', 'is_admin')
-    filter_horizontal = ('departments',)
+
+    filter_horizontal = ('departments',)  # 方便管理多对多
+
 
     def department_list(self, obj):
         return ', '.join([dept.name for dept in obj.departments.all()]) if obj.departments.exists() else '-'
     department_list.short_description = '部门'
+
 
     # ----- 自定义批量导入功能 -----
     def get_urls(self):
@@ -139,6 +144,7 @@ class MemberAdmin(admin.ModelAdmin):
             'title': '批量导入成员',
         }
         return render(request, 'admin/core/import_members.html', context)
+
 
 @admin.register(AttendanceRecord)
 class AttendanceRecordAdmin(admin.ModelAdmin):

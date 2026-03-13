@@ -1,15 +1,112 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>发布会议</title>
-</head>
-<body>
-    <h1>发布新会议</h1>
-    <form method="post">
+{% extends 'base.html' %}
+{% block title %}发布新会议 - 爱特社团{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <h2 class="lead-text">发布新会议</h2>
+
+    <form method="post" class="card-body" style="width: 100%; max-width: 800px;">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">发布</button>
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- 第一行：会议名称 + 地点 -->
+        <div class="form-row">
+            <div class="col-6">
+                <label for="{{ form.name.id_for_label }}" class="form-label">会议名称</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-6">
+                <label for="{{ form.location.id_for_label }}" class="form-label">地点</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                    <div class="text-danger small mt-1">{{ form.location.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 第二行：开始时间 + 结束时间 + 开启签到（使用 align-items-end 使复选框与输入框底部对齐） -->
+        <div class="form-row form-row-end">
+            <div class="col-5">
+                <label for="{{ form.start_time.id_for_label }}" class="form-label">预计开始时间</label>
+                {{ form.start_time }}
+                {% if form.start_time.errors %}
+                    <div class="text-danger small mt-1">{{ form.start_time.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-5">
+                <label for="{{ form.end_time.id_for_label }}" class="form-label">预计结束时间</label>
+                {{ form.end_time }}
+                {% if form.end_time.errors %}
+                    <div class="text-danger small mt-1">{{ form.end_time.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-2">
+                <div class="form-check pb-2"> {{ form.enable_checkin }}
+                    <label class="form-check-label" for="{{ form.enable_checkin.id_for_label }}" style="cursor: pointer;">
+                        开启签到
+                    </label>
+                </div>
+                {% if form.enable_checkin.errors %}
+                    <div class="text-danger small mt-1">{{ form.enable_checkin.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 第三行：简介 -->
+        <div class="form-row">
+            <div class="col-12">
+                <label for="{{ form.description.id_for_label }}" class="form-label">简介</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 第四行：与会成员 -->
+        <div class="form-row">
+            <div class="col-12">
+                <label for="{{ form.participants.id_for_label }}" class="form-label">与会成员</label>
+                {{ form.participants }}
+                <small class="form-text text-muted">可多选，支持搜索</small>
+                {% if form.participants.errors %}
+                    <div class="text-danger small mt-1">{{ form.participants.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 按钮区域 -->
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="submit" class="btn btn-glow" style="font-size:1rem;">发布会议</button>
+            <a href="{% url 'attendance_home' %}" class="btn btn-secondary" style="font-size:1rem;">返回考勤面板</a>
+        </div>
     </form>
-    <a href="{% url 'attendance_home' %}">返回</a>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new TomSelect('.tom-select', {
+            plugins: ['remove_button'],
+            create: false,
+            maxItems: null,
+            placeholder: '请选择与会成员',
+            hideSelected: true,
+            dropdownParent: 'body'
+        });
+    });
+</script>
+{% endblock %}

@@ -1,28 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ meeting.name }} 考勤详情</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-        .department-header { background-color: #e0e0e0; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <h1>{{ meeting.name }} 考勤详情</h1>
-    <p>时间：{{ meeting.start_time }} ~ {{ meeting.end_time }}</p>
-    <p>地点：{{ meeting.location|default:"-" }}</p>
-    <p>签到人数：{{ meeting.checkin_count }} / {{ meeting.participants.count }}</p>
-    {% if meeting.enable_checkin %}
-        <p>缺勤人数：{{ meeting.absent_count }}</p>
-    {% else %}
-        <p>本会议未开启签到</p>
-    {% endif %}
+{% extends 'base.html' %}
+{% block title %}考勤 - 爱特社团{% endblock %}
+{% block content %}
+<div class="main-container">
+    <h1 class="lead-text">{{ meeting.name }} 考勤详情</h1>
+    <div class="card-body">
+        <p>时间：{{ meeting.start_time }} ~ {{ meeting.end_time }}</p>
+        <p>地点：{{ meeting.location|default:"-" }}</p>
+        <p>签到人数：{{ meeting.checkin_count }} / {{ meeting.participants.count }}</p>
+        {% if meeting.enable_checkin %}
+            <p>缺勤人数：{{ meeting.absent_count }}</p>
+        {% else %}
+            <p>本会议未开启签到</p>
+        {% endif %}
+    </div>
 
     {% for group in grouped_list %}
-        <h2>{{ group.department }}</h2>
-        <table>
+        <h2 class="display-text">{{ group.department }}</h2>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>姓名</th>
@@ -49,6 +43,6 @@
             </tbody>
         </table>
     {% endfor %}
-    <a href="{% url 'attendance_home' %}">返回列表</a>
-</body>
-</html>
+    <a href="{% url 'attendance_home' %}" class="btn">返回列表</a>
+</div>
+{% endblock %}

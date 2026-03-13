@@ -1,31 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>考勤打卡</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; margin-top: 10px; font-family: sans-serif; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
-        th { background-color: #f8f9fa; color: #333; }
-        .btn { padding: 6px 14px; cursor: pointer; border: none; border-radius: 4px; font-size: 14px; transition: 0.3s; }
-        .btn-primary { background-color: #007bff; color: white; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn:disabled { background-color: #e9ecef !important; color: #6c757d !important; cursor: not-allowed; border: 1px solid #dee2e6; }
-        .status-success { color: #28a745; font-weight: bold; }
-        .status-absent { color: #dc3545; font-weight: bold; }
-        .status-waiting { color: #6c757d; }
-        .description { color: #555; font-size: 13px; margin-top: 6px; }
-        .muted { color: #777; font-size: 13px; }
-        .section-title { margin-top: 20px; font-size: 18px; }
-        .truncate { max-height: 3.2em; overflow: hidden; }
-        .show-more { color: #007bff; cursor: pointer; font-size: 13px; margin-left: 6px; display: none; }
-        .pagination { margin-top: 12px; }
-        .pagination a { margin: 0 6px; text-decoration: none; color: #007bff; }
-        .pagination .current { font-weight: bold; margin: 0 6px; }
-    </style>
-</head>
-<body>
-    <h1>考勤打卡</h1>
+{% extends 'base.html' %}
+{% block title %}考勤 - 爱特社团{% endblock %}
+{% block content %}
+<div class="main-container">
+    <h2 class="lead-text">考勤打卡</h2>
 
     {% csrf_token %}
 
@@ -33,14 +10,14 @@
         {% if is_teacher %}
             <a href="{% url 'meeting_create' %}" class="btn btn-primary" style="text-decoration: none;">发布新会议</a>
         {% endif %}
-        <a href="{% url 'home' %}" style="margin-left: 15px; color: #666;">返回主页</a>
+        <a href="{% url 'home' %}" class="btn">返回主页</a>
     </div>
+    <div>
 
-    <!-- 本周会议（不分页） -->
     <div class="section">
         <div class="section-title">本周会议</div>
         {% if this_week %}
-        <table>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>会议名称</th>
@@ -79,7 +56,7 @@
                     </td>
                     <td>
                         {% if is_teacher %}
-                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                            <a href="{% url 'meeting_detail' item.meeting.id %}" class="btn">考勤详情</a>
                         {% else %}
                             {% if item.status.can_checkin %}
                                 <button class="btn btn-primary checkin-btn" 
@@ -103,11 +80,10 @@
         {% endif %}
     </div>
 
-    <!-- 非本周的未来会议 -->
     <div class="section">
-        <div class="section-title">未来会议（本周以外）</div>
+        <div class="section-title">未来会议</div>
         {% if future_after_week %}
-        <table>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>会议名称</th>
@@ -142,7 +118,7 @@
                     </td>
                     <td>
                         {% if is_teacher %}
-                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                            <a href="{% url 'meeting_detail' item.meeting.id %}" class="btn">考勤详情</a>
                         {% else %}
                             {% if item.status.can_checkin %}
                                 <button class="btn btn-primary checkin-btn" 
@@ -166,11 +142,10 @@
         {% endif %}
     </div>
 
-    <!-- 历史会议（分页） -->
     <div class="section">
         <div class="section-title">历史会议</div>
         {% if past_page.object_list %}
-        <table>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>会议名称</th>
@@ -205,7 +180,7 @@
                     </td>
                     <td>
                         {% if is_teacher %}
-                            <a href="{% url 'meeting_detail' item.meeting.id %}">考勤详情</a>
+                            <a href="{% url 'meeting_detail' item.meeting.id %}" class="btn">考勤详情</a>
                         {% else %}
                             <button class="btn" disabled>已结束</button>
                         {% endif %}
@@ -228,36 +203,32 @@
         {% else %}
             <div class="muted">暂无历史会议</div>
         {% endif %}
+        </div>
     </div>
+</div>
 
-    <!-- 3) JS：页面加载时判断是否被截断并显示/隐藏按钮；保留展开/收起逻辑 -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // CSRF 与签到逻辑（保持你已有的代码）...
+
     const csrftokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
     const csrftoken = csrftokenInput ? csrftokenInput.value : '';
 
-    // --------- 新增：根据元素高度判断是否显示“展开” ----------
-    // 选择所有简介元素
     document.querySelectorAll('.description').forEach(desc => {
-        // 强制浏览器渲染样式以确保 clientHeight/scrollHeight 是正确的
-        // 如果内容高度大于容器高度，说明被截断，显示按钮
-        // 我们允许一个 1px 的容差以避免微小差异
+
         if (desc.scrollHeight > desc.clientHeight + 1) {
             const mid = desc.dataset.mid;
             const btn = document.querySelector('.show-more[data-mid="'+mid+'"]');
             if (btn) {
-                btn.style.display = 'inline'; // 显示按钮
+                btn.style.display = 'inline';
             }
         } else {
-            // 内容未超出，确保按钮隐藏（已默认隐藏，这里保险）
             const mid = desc.dataset.mid;
             const btn = document.querySelector('.show-more[data-mid="'+mid+'"]');
             if (btn) btn.style.display = 'none';
         }
     });
 
-    // 展开/收起切换（与之前逻辑一致）
     document.addEventListener('click', function(e) {
         if (e.target.matches('.show-more')) {
             const mid = e.target.dataset.mid;
@@ -269,13 +240,10 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 desc.classList.add('truncate');
                 e.target.innerText = '展开';
-                // 如果收起后内容确实不超出，可以隐藏按钮（可选）
-                // if (desc.scrollHeight <= desc.clientHeight + 1) { e.target.style.display = 'none'; }
             }
         }
     });
 
-    // --------- 签到按钮逻辑（保持你已有的 fetch 请求处理） ----------
     document.querySelectorAll('.checkin-btn').forEach(button => {
         button.addEventListener('click', function() {
             const btn = this;
@@ -319,5 +287,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
-</body>
-</html>
+{% endblock %}

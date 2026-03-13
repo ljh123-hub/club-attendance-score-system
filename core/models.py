@@ -13,8 +13,10 @@ class Department(models.Model):
 
 class Member(models.Model):
     USER_TYPE_CHOICES = (
+
         ('student', '成员'),
         ('teacher', '部长/站长'),
+
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='member_profile')

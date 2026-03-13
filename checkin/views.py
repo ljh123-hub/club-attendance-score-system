@@ -103,10 +103,13 @@ def attendance_home(request):
         # 以会议的 start_time 或 end_time 作判断：
         if meeting.end_time < now:
             past.append(entry)
-        elif meeting.start_time >= start_of_week and meeting.start_time <= end_of_week:
+
+        elif meeting.start_time <= end_of_week and meeting.end_time >= start_of_week:
+            # 会议与本周有重叠（包括本周之前开始但本周仍在进行，或本周开始）
             this_week.append(entry)
         else:
-            # 非本周且在未来
+            # 既不在历史，也不与本周重叠，则属于未来（尚未开始且不在本周）
+
             future_after_week.append(entry)
 
     # 对历史会议启用分页（每页10条）
